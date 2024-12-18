@@ -1,20 +1,125 @@
-// 11-3-circular-queue-ingridgobierno.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
 
-int main()
-{
-    std::cout << "Hello World!\n";
+using namespace std;
+
+class CircularQueue {
+public:
+    CircularQueue(int capacity = 10) {
+        _capacity = capacity;
+        _array = new int[_capacity];
+        _front = -1;
+        _back = -1;
+        _size = 0;
+    }
+
+    ~CircularQueue() {
+        delete[] _array;
+    }
+
+    void enqueue(int value) {
+        if (_size == _capacity) {
+            resize();
+        }
+
+        if (_size == 0) {
+            _front = 0;
+        }
+
+        _back = (_back + 1) % _capacity;
+        _array[_back] = value;
+        _size++;
+    }
+
+    int dequeue() {
+        if (empty()) {
+            cout <<"Queue is empty. Cannot dequeue." << endl;
+        }
+
+        int value = _array[_front];
+        _front = (_front + 1) % _capacity;
+        _size--;                         
+
+        if (_size == 0) {
+           
+            _front = -1;
+            _back = -1;
+        }
+
+        return value;
+    }
+
+
+    int size() const {
+        return _size;
+    }
+
+    bool empty() const {
+        return _size == 0;
+    }
+
+    void print() const {
+        if (empty()) {
+            cout << "Queue is empty. Nothing to print.\n";
+            return;
+        }
+
+        std::cout << "Queue elements: ";
+        int index = _front;
+        for (int i = 0; i < _size; ++i) {
+            std::cout << _array[index] << " ";
+            index++;
+            if (index == _capacity) {
+                index = 0;
+            }
+        }
+        std::cout << std::endl;
+    }
+
+private:
+    int _front;
+    int _back;
+    int* _array;
+    int _capacity;
+    int _size;
+
+
+    void resize() {
+        int newCapacity = _capacity * 2;
+        int* newArray = new int[newCapacity];
+
+
+        int index = _front;
+        for (int i = 0; i < _size; ++i) {
+            newArray[i] = _array[index];
+            index++;
+            if (index == _capacity) {
+                index = 0;
+            }
+        }
+
+
+        delete[] _array;
+        _array = newArray;
+        _capacity = newCapacity;
+        _front = 0;
+        _back = _size - 1;
+    }
+};
+
+int main() {
+    CircularQueue q(3);
+
+    q.enqueue(10);
+    q.enqueue(20);
+    q.enqueue(30);
+    q.print();
+
+    q.enqueue(40); // This triggers a resize
+    q.print();
+
+    q.dequeue();
+    q.enqueue(50);
+    q.print();
+
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
